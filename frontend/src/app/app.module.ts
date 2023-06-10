@@ -4,16 +4,21 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
+import { MapComponent } from './map/map.component';
+import { HomeComponent } from './home/home.component';
 
 const ROUTES: Routes = [
   { path: 'login', component: LoginComponent },
+  { path: 'home', component: HomeComponent },
   { path: '**', redirectTo: '/login', pathMatch: 'full' }
 ];
 
 @NgModule({
   declarations: [
     AppComponent,
-    LoginComponent
+    LoginComponent,
+    MapComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,
