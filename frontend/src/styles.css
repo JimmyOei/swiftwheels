@@ -2,4 +2,5 @@
 
 :root {
     --toolbar-height: 60px;
+    --toolbar-default-margin: 15px;
 }
