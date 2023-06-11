@@ -1,4 +1,4 @@
-package com.jimmyoei.swiftwheels;
+package com.jimmy.swiftwheels;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
