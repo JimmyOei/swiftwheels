@@ -6,10 +6,12 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
 import { MapComponent } from './map/map.component';
 import { HomeComponent } from './home/home.component';
+import { RegisterComponent } from './register/register.component';
 
 const ROUTES: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'home', component: HomeComponent },
+  { path: 'register', component: RegisterComponent},
   { path: '**', redirectTo: '/login', pathMatch: 'full' }
 ];
 
@@ -18,7 +20,8 @@ const ROUTES: Routes = [
     AppComponent,
     LoginComponent,
     MapComponent,
-    HomeComponent
+    HomeComponent,
+    RegisterComponent
   ],
   imports: [
     BrowserModule,

@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { LoginComponent } from './login/login.component';
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -20,6 +18,6 @@ export class AppComponent {
 
   logout() {
     this.toggleMenu();
-    this.router.navigate([LoginComponent]);
+    this.router.navigate(['/login']);
   }
 }
