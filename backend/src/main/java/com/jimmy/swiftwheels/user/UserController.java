@@ -3,6 +3,8 @@ package com.jimmy.swiftwheels.user;
 import com.jimmy.swiftwheels.role.Role;
 import com.jimmy.swiftwheels.util.RegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +17,7 @@ public class UserController {
 
     @PostMapping({"/register"})
     public User register(@RequestBody RegisterRequest request) {
+        System.out.println("Received request: " + request);
         User user = User.builder()
                 .username(request.getUsername())
                 .password(request.getPassword())
