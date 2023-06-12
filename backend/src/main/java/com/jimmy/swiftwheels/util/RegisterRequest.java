@@ -1,5 +1,6 @@
 package com.jimmy.swiftwheels.util;
 
+import com.jimmy.swiftwheels.user.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

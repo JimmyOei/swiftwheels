@@ -1,5 +1,6 @@
 package com.jimmy.swiftwheels.util;
 
+import com.jimmy.swiftwheels.user.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
