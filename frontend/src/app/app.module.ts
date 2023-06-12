@@ -10,9 +10,14 @@ import { MapComponent } from './map/map.component';
 import { HomeComponent } from './home/home.component';
 import { RegisterComponent } from './register/register.component';
 
+import { AuthGuard } from './guards/auth.guard';
+import { AdminAuthGuard } from './guards/admin-auth.guard';
+import { AdminComponent } from './admin/admin.component';
+
 const ROUTES: Routes = [
   { path: 'login', component: LoginComponent },
-  { path: 'home', component: HomeComponent },
+  { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
+  { path: 'admin', component: AdminComponent, canActivate: [AdminAuthGuard]},
   { path: 'register', component: RegisterComponent},
   { path: '**', redirectTo: '/login', pathMatch: 'full' }
 ];
@@ -23,7 +28,8 @@ const ROUTES: Routes = [
     LoginComponent,
     MapComponent,
     HomeComponent,
-    RegisterComponent
+    RegisterComponent,
+    AdminComponent
   ],
   imports: [
     BrowserModule,

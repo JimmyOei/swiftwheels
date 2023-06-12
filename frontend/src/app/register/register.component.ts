@@ -9,25 +9,24 @@ import { Router } from '@angular/router';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
-  user: any = {};
+  registerRequest: any = {};
   message: string = '';
 
   constructor(private authService: AuthService, private router: Router) { }
 
-  register(): void {
-    this.authService.register(this.user)
-      .subscribe(
-        response => {
-          // Registration successful
-          console.log('Registration successful:', response);
-          this.router.navigate(['/login'])
-        },
-        error => {
-          // Registration failed
-          this.message = error.error.message || 'Registration failed';
-          console.error('Registration failed:', error);
-        }
-      );
+  register() {
+    this.authService.register(this.registerRequest).subscribe(
+      (response) => {
+        // Registration successful
+        console.log('Registration successful', response);
+        this.router.navigate(['/login'])
+      },
+      (error) => {
+        // Registration failed
+        console.error('Registration failed', error);
+        this.message = error.error.message || 'Registration failed';
+      }
+    );
   }
   
 }

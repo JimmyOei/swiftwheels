@@ -3,11 +3,11 @@
     <form (submit)="register()">
         <div>
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username" [(ngModel)]="user.username" required>
+            <input type="text" id="username" name="username" [(ngModel)]="registerRequest.username" required>
         </div>
         <div>
             <label for="password">Password:</label>
-            <input type="password" id="password" name="password" [(ngModel)]="user.password" required>
+            <input type="password" id="password" name="password" [(ngModel)]="registerRequest.password" required>
         </div>
         <button type="submit">Register</button>
     </form>
