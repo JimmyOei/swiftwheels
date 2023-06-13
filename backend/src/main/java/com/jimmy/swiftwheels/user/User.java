@@ -21,9 +21,11 @@ import java.util.List;
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     private String username;
+
     private String password;
 
     @Enumerated(EnumType.STRING)

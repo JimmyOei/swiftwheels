@@ -25,19 +25,26 @@ import java.io.IOException;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
-    private final UserRepository repository;
+    private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
+        if(request == null
+                || request.getUsername() == null || request.getUsername().isEmpty()
+                || request.getPassword() == null || request.getPassword().isEmpty()
+                || userRepository.findByUsername(request.getUsername()).isPresent()) {
+            return null;
+        }
+
         var user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
                 .build();
-        var savedUser = repository.save(user);
+        var savedUser = userRepository.save(user);
         var jwtToken = jwtUtil.generateToken(user);
         var refreshToken = jwtUtil.generateToken(user);
         saveUserToken(savedUser, jwtToken);
@@ -48,13 +55,11 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
-                        request.getPassword()
-                )
+                        request.getPassword())
         );
-        var user = repository.findByUsername(request.getUsername())
+        var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow();
         var jwtToken = jwtUtil.generateToken(user);
         var refreshToken = jwtUtil.generateToken(user);
@@ -100,7 +105,7 @@ public class AuthenticationService {
         refreshToken = authHeader.substring(7);
         userEmail = jwtUtil.extractUsername(refreshToken);
         if (userEmail != null) {
-            var user = this.repository.findByUsername(userEmail)
+            var user = this.userRepository.findByUsername(userEmail)
                     .orElseThrow();
             if (jwtUtil.isTokenValid(refreshToken, user)) {
                 var accessToken = jwtUtil.generateToken(user);
