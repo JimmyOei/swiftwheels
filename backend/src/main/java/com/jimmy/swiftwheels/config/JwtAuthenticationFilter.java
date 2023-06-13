@@ -27,25 +27,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull javax.servlet.http.HttpServletRequest request,
                                     @NonNull javax.servlet.http.HttpServletResponse response,
                                     @NonNull javax.servlet.FilterChain filterChain) throws javax.servlet.ServletException, IOException {
+        System.out.println("Request: " + request);
         if(request.getServletPath().contains("/api/auth")) {
             filterChain.doFilter(request, response);
             return;
         }
         final String authHeader = request.getHeader("Authorization");
+        System.out.println("Header: " + authHeader);
         final String jwt;
-        final String userEmail;
-        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
+        final String username;
+        if(authHeader == null ||!authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
         jwt = authHeader.substring(7);
-        userEmail = jwtUtil.extractUsername(jwt);
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+        username = jwtUtil.extractUsername(jwt);
+        if(username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
             var isTokenValid = tokenRepository.findByToken(jwt)
-                    .map(t -> !t.isExpired() ) // && !t.isRevoked()
+                    .map(t -> !t.isRevoked() && !t.isExpired())
                     .orElse(false);
-            if (jwtUtil.isTokenValid(jwt, userDetails) && isTokenValid) {
+            if(jwtUtil.isTokenValid(jwt, userDetails) && isTokenValid) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,

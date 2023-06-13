@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
 
@@ -14,9 +15,15 @@ import java.time.Instant;
 @NoArgsConstructor
 public class AuthenticationResponse {
 
-    @JsonProperty("access_token")
-    private String accessToken;
+    @JsonProperty("username")
+    private String username;
 
-    @JsonProperty("refresh_token")
-    private String refreshToken;
+    @JsonProperty("role")
+    private String Role;
+
+    @JsonProperty("token")
+    private String token;
+
+    @JsonProperty("message")
+    private String message;
 }

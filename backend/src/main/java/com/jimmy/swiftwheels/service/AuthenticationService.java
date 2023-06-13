@@ -7,20 +7,15 @@ import com.jimmy.swiftwheels.token.TokenType;
 import com.jimmy.swiftwheels.user.Role;
 import com.jimmy.swiftwheels.user.User;
 import com.jimmy.swiftwheels.user.UserRepository;
-import com.jimmy.swiftwheels.util.AuthenticationRequest;
-import com.jimmy.swiftwheels.util.AuthenticationResponse;
-import com.jimmy.swiftwheels.util.JwtUtil;
-import com.jimmy.swiftwheels.util.RegisterRequest;
+import com.jimmy.swiftwheels.util.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -31,44 +26,62 @@ public class AuthenticationService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationResponse register(RegisterRequest request) {
+    public ResponseEntity<AuthenticationResponse> register(RegisterRequest request) {
+        // validate credentials
         if(request == null
                 || request.getUsername() == null || request.getUsername().isEmpty()
-                || request.getPassword() == null || request.getPassword().isEmpty()
-                || userRepository.findByUsername(request.getUsername()).isPresent()) {
-            return null;
+                || request.getPassword() == null || request.getPassword().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(AuthenticationResponse.builder().message(ResponseMessage.INVALID_CREDENTIALS).build());
         }
 
+        // check if username is not taken already
+        if(userRepository.findByUsername(request.getUsername()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(AuthenticationResponse.builder().message(ResponseMessage.USERNAME_EXISTS).build());
+        }
+
+        // save user to database and generate token
         var user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
+                .role(Role.ROLE_USER)
                 .build();
         var savedUser = userRepository.save(user);
         var jwtToken = jwtUtil.generateToken(user);
-        var refreshToken = jwtUtil.generateToken(user);
         saveUserToken(savedUser, jwtToken);
-        return AuthenticationResponse.builder()
-                .accessToken(jwtToken)
-                .refreshToken(refreshToken)
-                .build();
+
+        return ResponseEntity.ok(AuthenticationResponse.builder()
+                .username(user.getUsername())
+                .Role(user.getRole().name())
+                .token(jwtToken)
+                .message(ResponseMessage.REGISTRATION_SUCCESSFUL)
+                .build());
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword())
-        );
-        var user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow();
+    public ResponseEntity<AuthenticationResponse> authenticate(AuthenticationRequest request) {
+        // authenticate users credentials
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+        } catch (AuthenticationException exception) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(AuthenticationResponse.builder().message(exception.getMessage()).build());
+        }
+
+        // get user
+        var user = userRepository.findByUsername(request.getUsername()).orElse(null);
+        if(user == null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(AuthenticationResponse.builder().message(ResponseMessage.INVALID_CREDENTIALS).build());
+        }
+
+        // generate token
         var jwtToken = jwtUtil.generateToken(user);
-        var refreshToken = jwtUtil.generateToken(user);
-        //revokeAllUserTokens(user);
+        revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
-        return AuthenticationResponse.builder()
-                .accessToken(jwtToken)
-                .refreshToken(refreshToken)
-                .build();
+
+        return ResponseEntity.ok(AuthenticationResponse.builder()
+                .username(user.getUsername())
+                .Role(user.getRole().name())
+                .token(jwtToken)
+                .message(ResponseMessage.LOGIN_SUCCESSFUL)
+                .build());
     }
 
     private void saveUserToken(User user, String jwtToken) {
@@ -76,47 +89,20 @@ public class AuthenticationService {
                 .user(user)
                 .token(jwtToken)
                 .tokenType(TokenType.BEARER)
-                .expired(false)
+                .revoked(false)
                 .build();
         tokenRepository.save(token);
     }
 
-//    private void revokeAllUserTokens(User user) {
-//        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
-//        if (validUserTokens.isEmpty())
-//            return;
-//        validUserTokens.forEach(token -> {
-//            token.setExpired(true);
-//            token.setRevoked(true);
-//        });
-//        tokenRepository.saveAll(validUserTokens);
-//    }
-
-    public void refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        final String refreshToken;
-        final String userEmail;
-        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
+    private void revokeAllUserTokens(User user) {
+        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
+        if (validUserTokens.isEmpty()) {
             return;
         }
-        refreshToken = authHeader.substring(7);
-        userEmail = jwtUtil.extractUsername(refreshToken);
-        if (userEmail != null) {
-            var user = this.userRepository.findByUsername(userEmail)
-                    .orElseThrow();
-            if (jwtUtil.isTokenValid(refreshToken, user)) {
-                var accessToken = jwtUtil.generateToken(user);
-                //revokeAllUserTokens(user);
-                saveUserToken(user, accessToken);
-                var authResponse = AuthenticationResponse.builder()
-                        .accessToken(accessToken)
-                        .refreshToken(refreshToken)
-                        .build();
-                new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
-            }
-        }
+        validUserTokens.forEach(token -> {
+            token.setRevoked(true);
+            token.setExpired(true);
+        });
+        tokenRepository.saveAll(validUserTokens);
     }
 }

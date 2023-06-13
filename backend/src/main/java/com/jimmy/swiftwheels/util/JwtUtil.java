@@ -19,7 +19,7 @@ class JwtUtil {
 
     private static final String SECRET_KEY = "e0iAGwQ5tBTLcW/SR8J2lHd4K6EkNU1ngSbElXF+L9mM7GsB494d2M1xGzCyE13x";
 
-    private static final long TOKEN_VALIDITY = 1000 * 60;
+    private static final long TOKEN_VALIDITY = 1000 * 60 * 30; // 30 minutes
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
