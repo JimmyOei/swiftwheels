@@ -19,7 +19,7 @@ export class RegisterComponent {
       (response) => {
         // Registration successful
         console.log('Registration successful', response);
-        this.router.navigate(['/login'])
+        this.router.navigate(['/home'])
       },
       (error) => {
         // Registration failed

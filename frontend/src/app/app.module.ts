@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { Routes, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { NgxWebstorageModule } from 'ngx-webstorage';
 
 import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
@@ -35,6 +36,7 @@ const ROUTES: Routes = [
     BrowserModule,
     FormsModule,
     HttpClientModule,
+    NgxWebstorageModule.forRoot(),
     RouterModule.forRoot(ROUTES)
   ],
   providers: [],

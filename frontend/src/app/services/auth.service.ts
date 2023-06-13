@@ -1,34 +1,67 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+
+
+import { LocalStorageService } from 'ngx-webstorage';
+import { map, catchError } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private baseUrl = 'http://localhost:8080/api/v1/auth';
-  private authenticated = false;
-  private admin = false;
+  private baseUrl = 'http://localhost:8080/api/auth';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private localStorage: LocalStorageService) { }
 
   register(registerRequest: any) {
     return this.http.post(`${this.baseUrl}/register`, registerRequest);
   }
 
   authenticate(authRequest: any) {
-    return this.http.post(`${this.baseUrl}/authenticate`, authRequest);
+    return this.http.post(`${this.baseUrl}/authenticate`, authRequest).pipe(
+      map((data: any) => {
+        this.localStorage.store('username', data.usernmae);
+        this.localStorage.store('role', data.role);
+        this.localStorage.store('token', data.token);
+
+        return true;
+      })
+    );
   }
 
-  public setAuthenticated(authenticated: boolean) {
-    this.authenticated = authenticated;
+  isAuthorizedUser(): Observable<boolean> {
+    const token = this.localStorage.retrieve('token');
+
+    if(!token) {
+      return of(false);
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.post(`${this.baseUrl}/forUser`, null, { headers }).pipe(
+      map(() => true),
+      catchError(() => of(false))
+    );
   }
 
-  public isAuthenticated(): boolean {
-    return this.authenticated;
-  }
+  isAuthorizedAdmin(): Observable<boolean> {
+    const token = this.localStorage.retrieve('token');
 
-  public isAdmin(): boolean {
-    return this.admin;
+    if(!token) {
+      return of(false);
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.post(`${this.baseUrl}/forAdmin`, null, { headers }).pipe(
+      map(() => true),
+      catchError(() => of(false))
+    );
   }
 }
