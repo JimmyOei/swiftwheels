@@ -1,6 +1,7 @@
 package com.jimmy.swiftwheels.user;
 
 import com.jimmy.swiftwheels.token.Token;
+import com.jimmy.swiftwheels.vehicle.Vehicle;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,6 +27,7 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(unique = true)
     private String username;
 
     private String password;
@@ -35,6 +37,9 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user")
     private List<Token> tokens;
+
+    @OneToOne(mappedBy = "user")
+    private Vehicle vehicle;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

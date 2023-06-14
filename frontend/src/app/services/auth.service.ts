@@ -11,16 +11,16 @@ import { Observable, of } from 'rxjs';
   providedIn: 'root'
 })
 export class AuthService {
-  private baseUrl = 'http://localhost:8080';
+  private baseUrl = 'http://localhost:8080/api';
 
   constructor(private http: HttpClient, private localStorage: LocalStorageService) { }
 
   register(registerRequest: any) {
-    return this.http.post(`${this.baseUrl}/api/auth/register`, registerRequest);
+    return this.http.post(`${this.baseUrl}/auth/register`, registerRequest);
   }
 
   authenticate(authRequest: any) {
-    return this.http.post(`${this.baseUrl}/api/auth/authenticate`, authRequest).pipe(
+    return this.http.post(`${this.baseUrl}/auth/authenticate`, authRequest).pipe(
       map((data: any) => {
         this.localStorage.store('username', data.usernmae);
         this.localStorage.store('role', data.role);
@@ -42,7 +42,7 @@ export class AuthService {
       'Authorization': `Bearer ${token}`
     });
   
-    return this.http.post(`${this.baseUrl}/forUser`, null, { headers, observe: 'response' }).pipe(
+    return this.http.post(`${this.baseUrl}/for/user`, null, { headers, observe: 'response' }).pipe(
       map(response => {
         return response.status === 200;
       }),
@@ -63,7 +63,7 @@ export class AuthService {
       'Authorization': `Bearer ${token}`
     });
   
-    return this.http.post(`${this.baseUrl}/forAdmin`, null, { headers, observe: 'response' }).pipe(
+    return this.http.post(`${this.baseUrl}/for/admin`, null, { headers, observe: 'response' }).pipe(
       map(response => {
         return response.status === 200;
       }),

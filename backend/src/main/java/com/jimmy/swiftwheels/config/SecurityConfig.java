@@ -31,6 +31,8 @@ public class SecurityConfig {
                 .csrf().disable()
                 .authorizeHttpRequests()
                 .antMatchers("/api/auth/*").permitAll()
+                .antMatchers("/api/vehicles/available").permitAll()
+                .antMatchers("/api/vehicles/bounds").permitAll()
                 .antMatchers(HttpHeaders.ALLOW).permitAll()
                 .anyRequest().authenticated()
                 .and()

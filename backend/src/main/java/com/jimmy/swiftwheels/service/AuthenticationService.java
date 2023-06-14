@@ -1,6 +1,5 @@
 package com.jimmy.swiftwheels.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jimmy.swiftwheels.token.Token;
 import com.jimmy.swiftwheels.token.TokenRepository;
 import com.jimmy.swiftwheels.token.TokenType;
