@@ -19,7 +19,6 @@ export class AppComponent {
   }
 
   logout() {
-    this.authService.setAuthenticated(false);
     this.toggleMenu();
     this.router.navigate(['/login']);
   }

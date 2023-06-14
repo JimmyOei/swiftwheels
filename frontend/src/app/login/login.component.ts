@@ -23,7 +23,7 @@ export class LoginComponent {
       (error) => {
         // Login failed
         console.error('Login failed', error);
-        this.message = error.error.message || 'Registration failed';
+        this.message = error.error.message || 'Login failed';
       }
     );
   }
