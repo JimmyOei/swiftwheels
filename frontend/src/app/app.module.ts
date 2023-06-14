@@ -14,6 +14,8 @@ import { RegisterComponent } from './register/register.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AdminAuthGuard } from './guards/admin-auth.guard';
 import { AdminComponent } from './admin/admin.component';
+import { AdminUsersComponent } from './admin-users/admin-users.component';
+import { AdminVehiclesComponent } from './admin-vehicles/admin-vehicles.component';
 
 const ROUTES: Routes = [
   { path: 'login', component: LoginComponent },
@@ -30,7 +32,9 @@ const ROUTES: Routes = [
     MapComponent,
     HomeComponent,
     RegisterComponent,
-    AdminComponent
+    AdminComponent,
+    AdminUsersComponent,
+    AdminVehiclesComponent
   ],
   imports: [
     BrowserModule,
