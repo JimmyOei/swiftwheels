@@ -1,9 +1,7 @@
 package com.jimmy.swiftwheels.controller;
 
 import com.jimmy.swiftwheels.service.AuthenticationService;
-import com.jimmy.swiftwheels.util.AuthenticationRequest;
-import com.jimmy.swiftwheels.util.AuthenticationResponse;
-import com.jimmy.swiftwheels.util.RegisterRequest;
+import com.jimmy.swiftwheels.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,5 +23,10 @@ public class AuthenticationController {
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         return authService.authenticate(request);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<MessageResponse> logout(@RequestBody LogoutRequest request) {
+        return authService.logout(request);
     }
 }

@@ -1,8 +1,6 @@
 package com.jimmy.swiftwheels.util;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-public final class ResponseMessage {
+public final class Message {
 
     /* Authentication messages */
     public static final String REGISTRATION_SUCCESSFUL = "Registration successful";
@@ -10,7 +8,7 @@ public final class ResponseMessage {
     public static final String INVALID_CREDENTIALS = "Invalid credentials";
     public static final String LOGIN_SUCCESSFUL = "Login successful";
     public static final String AUTHORIZED = "Authorized";
-
+    public static final String LOGOUT_SUCCESSFUL = "Logout successful";
     public static final String UNAUTHORIZED = "Unauthorized";
 
     /* Vehicle messages */
@@ -24,4 +22,6 @@ public final class ResponseMessage {
 
     public static final String VEHICLE_RELEASE_SUCCESSFUL = "Vehicle successfully released";
     public static final String NOT_YOUR_VEHICLE = "You are not reserving this vehicle";
+
+
 }

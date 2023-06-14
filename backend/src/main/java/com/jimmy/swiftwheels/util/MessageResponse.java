@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class VehicleResponse {
+public class MessageResponse {
 
     @JsonProperty("message")
     private String message;

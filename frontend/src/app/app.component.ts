@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { AuthService } from './services/auth.service';
+import { UserService } from './services/user.service';
 
 @Component({
   selector: 'app-root',
@@ -21,5 +22,6 @@ export class AppComponent {
   logout() {
     this.toggleMenu();
     this.router.navigate(['/login']);
+    this.authService.logout();
   }
 }

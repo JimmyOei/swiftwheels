@@ -20,7 +20,7 @@ export class AdminAuthGuard implements CanActivate {
         } 
         else {
           console.log("Unauthorized admin");
-          this.router.navigate(['/login']);
+          this.router.navigate(['/home']);
           return false;
         }
       })

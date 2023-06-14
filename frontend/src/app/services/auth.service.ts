@@ -5,6 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LocalStorageService } from 'ngx-webstorage';
 import { map, catchError } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
+import { logoutRequest } from '../interfaces/logoutrequest.interface';
 
 
 @Injectable({
@@ -37,6 +38,28 @@ export class AuthService {
         return true;
       })
     );
+  }
+
+  logout() {
+    var username = this.localStorage.retrieve('username');
+    
+    if(!username) {
+      return;
+    }
+
+    const logoutRequest: logoutRequest = {
+      username: username
+    };
+
+    this.http.post(`${this.baseUrl}/auth/logout`, logoutRequest).subscribe(
+      (response: any) => {
+        console.log(response.message);
+      },
+      (error) => {
+        console.log(error.error);
+      }
+    );
+    this.localStorage.clear();
   }
 
   isAuthorizedUser(): Observable<boolean> {

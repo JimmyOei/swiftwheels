@@ -30,12 +30,12 @@ public class AuthenticationService {
         if(request == null
                 || request.getUsername() == null || request.getUsername().isEmpty()
                 || request.getPassword() == null || request.getPassword().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(AuthenticationResponse.builder().message(ResponseMessage.INVALID_CREDENTIALS).build());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(AuthenticationResponse.builder().message(Message.INVALID_CREDENTIALS).build());
         }
 
         // check if username is not taken already
         if(userRepository.findByUsername(request.getUsername()).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(AuthenticationResponse.builder().message(ResponseMessage.USERNAME_EXISTS).build());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(AuthenticationResponse.builder().message(Message.USERNAME_EXISTS).build());
         }
 
         // save user to database and generate token
@@ -52,7 +52,7 @@ public class AuthenticationService {
                 .username(user.getUsername())
                 .Role(user.getRole().name())
                 .token(jwtToken)
-                .message(ResponseMessage.REGISTRATION_SUCCESSFUL)
+                .message(Message.REGISTRATION_SUCCESSFUL)
                 .build());
     }
 
@@ -67,7 +67,7 @@ public class AuthenticationService {
         // get user
         var user = userRepository.findByUsername(request.getUsername()).orElse(null);
         if(user == null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(AuthenticationResponse.builder().message(ResponseMessage.INVALID_CREDENTIALS).build());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(AuthenticationResponse.builder().message(Message.INVALID_CREDENTIALS).build());
         }
 
         // generate token
@@ -79,7 +79,7 @@ public class AuthenticationService {
                 .username(user.getUsername())
                 .Role(user.getRole().name())
                 .token(jwtToken)
-                .message(ResponseMessage.LOGIN_SUCCESSFUL)
+                .message(Message.LOGIN_SUCCESSFUL)
                 .build());
     }
 
@@ -95,7 +95,7 @@ public class AuthenticationService {
 
     private void revokeAllUserTokens(User user) {
         var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
-        if (validUserTokens.isEmpty()) {
+        if(validUserTokens.isEmpty()) {
             return;
         }
         validUserTokens.forEach(token -> {
@@ -103,5 +103,21 @@ public class AuthenticationService {
             token.setExpired(true);
         });
         tokenRepository.saveAll(validUserTokens);
+    }
+
+    public ResponseEntity<MessageResponse> logout(LogoutRequest request) {
+        String username = request.getUsername();
+        if(username == null) {
+            return ResponseEntity.badRequest().body(
+                    MessageResponse.builder().message(Message.INVALID_CREDENTIALS).build());
+        }
+        User user = userRepository.findByUsername(username).orElse(null);
+        if(user == null) {
+            return ResponseEntity.badRequest().body(
+                    MessageResponse.builder().message(Message.INVALID_CREDENTIALS).build());
+        }
+
+        revokeAllUserTokens(user);
+        return ResponseEntity.ok(MessageResponse.builder().message(Message.LOGOUT_SUCCESSFUL).build());
     }
 }

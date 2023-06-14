@@ -1,7 +1,7 @@
 package com.jimmy.swiftwheels.controller;
 
 import com.jimmy.swiftwheels.service.VehicleService;
-import com.jimmy.swiftwheels.util.VehicleResponse;
+import com.jimmy.swiftwheels.util.MessageResponse;
 import com.jimmy.swiftwheels.util.addVehicleRequest;
 import com.jimmy.swiftwheels.util.VehicleRequest;
 import com.jimmy.swiftwheels.vehicle.Vehicle;
@@ -34,19 +34,19 @@ public class VehicleController {
 
     @PostMapping("/add")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<VehicleResponse> addVehicle(@RequestBody addVehicleRequest request) {
+    public ResponseEntity<MessageResponse> addVehicle(@RequestBody addVehicleRequest request) {
         return vehicleService.addVehicle(request);
     }
 
     @PostMapping("/reserve")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<VehicleResponse> reserveVehicle(@RequestBody VehicleRequest request) {
+    public ResponseEntity<MessageResponse> reserveVehicle(@RequestBody VehicleRequest request) {
         return vehicleService.reserveVehicle(request);
     }
 
     @PostMapping("/release")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<VehicleResponse> releaseVehicle(@RequestBody VehicleRequest request) {
+    public ResponseEntity<MessageResponse> releaseVehicle(@RequestBody VehicleRequest request) {
         return vehicleService.releaseVehicle(request);
     }
 }
