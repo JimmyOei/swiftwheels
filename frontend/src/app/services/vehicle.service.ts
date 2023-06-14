@@ -5,8 +5,7 @@ import { MapBoundaries } from '../interfaces/mapboundaries.interface';
 
 
 import { LocalStorageService } from 'ngx-webstorage';
-import { map, catchError } from 'rxjs/operators';
-import { Observable, of } from 'rxjs';
+import { ReserveVehicleRequest } from '../interfaces/reservevehiclerequest.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -22,5 +21,47 @@ export class VehicleService {
 
   getAllAvailableVehicles() {
     return this.http.get<Vehicle[]>(`${this.baseUrl}/available`);
+  }
+
+  reserveVehicle(id: number) {
+    const token = this.localStorage.retrieve('token');
+
+    if(!token) {
+      return null;
+    }
+
+    let request: ReserveVehicleRequest = {
+      token: token,
+      vehicle_id: id
+    };
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.post(`${this.baseUrl}/reserve`, request, { headers });
+  }
+
+  releaseVehicle() {
+    if(this.localStorage.retrieve('vehicle_reserved') == false) {
+      return null;
+    }
+    const vehicle_id = this.localStorage.retrieve('vehicle_id')
+    const token = this.localStorage.retrieve('token');
+
+    if(!token || !vehicle_id) {
+      return null;
+    }
+
+    let request: ReserveVehicleRequest = {
+      token: token,
+      vehicle_id: vehicle_id
+    };
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.post(`${this.baseUrl}/release`, request, { headers });
   }
 }

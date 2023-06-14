@@ -8,6 +8,8 @@ import * as L from 'leaflet';
 // This fixes a known bug in leafleet where the 
 // Leaflet's icon image location is been wrongly referenced during bundling
 import { icon, Marker } from 'leaflet';
+import { LocalStorageService } from 'ngx-webstorage';
+import { UserService } from '../services/user.service';
 const iconRetinaUrl = 'assets/marker-icon-2x.png';
 const iconUrl = 'assets/marker-icon.png';
 const shadowUrl = 'assets/marker-shadow.png';
@@ -23,9 +25,6 @@ const iconDefault = icon({
 });
 Marker.prototype.options.icon = iconDefault;
 
-
-
-
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
@@ -33,8 +32,37 @@ Marker.prototype.options.icon = iconDefault;
 })
 export class MapComponent implements AfterViewInit {
   private map!: L.Map;
+  message: string = '';
+  vehicleReserved: boolean = false;
+  vehicleName: string = '';
+  vehicleId: number = 0;
 
-  constructor(private vehicleService: VehicleService) {}
+  constructor(private vehicleService: VehicleService,  private userService: UserService, private localStorage: LocalStorageService) {
+    this.updateVehicleReserved();
+  }
+
+  updateVehicleReserved() {
+    const reservedResponse = this.userService.getReservedVehicle();
+    if(!reservedResponse) {
+      console.log("Failed getting reserved vehicle data.");
+      return;
+    }
+  
+    reservedResponse.subscribe(() => {
+      this.vehicleReserved = this.localStorage.retrieve('vehicle_reserved');
+      if(this.vehicleReserved) {
+        this.vehicleName = this.localStorage.retrieve('vehicle_name');
+        this.vehicleId = this.localStorage.retrieve('vehicle_id');
+      } 
+      else {
+        this.vehicleName = '';
+        this.vehicleId = 0;
+      }
+    }, 
+    (error) => {
+      console.log(error);
+    });
+  }
 
   /* Initiates the map and adds markers */
   ngAfterViewInit(): void {
@@ -65,20 +93,73 @@ export class MapComponent implements AfterViewInit {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map);
   }
 
+  releaseVehicle() {
+    const releaseResponse = this.vehicleService.releaseVehicle();
+    if(!releaseResponse) {
+      console.log("Release failed because of local missing reserved vehicle.");
+      return;
+    }
+  
+    releaseResponse.subscribe(
+      (response: any) => {
+        this.updateVehicleReserved();
+        this.updateMarkers();
+      },
+      (error) => {
+        console.log(error.error);
+      }
+    );
+
+  }
+
+  reserveVehicle(id: number) {
+    const reserveResponse = this.vehicleService.reserveVehicle(id);
+    if(!reserveResponse) {
+      console.log("Reservation failed because of missing local username or token.");
+      return;
+    }
+  
+    reserveResponse.subscribe(
+      (response: any) => {
+        this.message = response;
+        this.updateMarkers();
+        this.updateVehicleReserved();
+      },
+      (error) => {
+        console.log(error.error);
+      }
+    );
+  }
+
   /* Puts markers on the map for all available vehicles */
   private addMarkers(): void {
     this.vehicleService.getAllAvailableVehicles().subscribe(
       (response) => {
         response.forEach(vehicle => {
           if(vehicle.available == true) {
-            const popupContent = `<b>${vehicle.name}</b><br>Type: ${vehicle.type}<br>ID: ${vehicle.id}`;
-            L.marker([vehicle.latitude, vehicle.longitude]).addTo(this.map)
-              .bindPopup(popupContent);
+          const popupContent = document.createElement('div');
+          popupContent.innerHTML = `
+            <b>${vehicle.name}</b>
+            <br>Type: ${vehicle.type}
+            <br>ID: ${vehicle.id}
+            <br>
+          `;
+
+          const button = document.createElement('button');
+          button.textContent = 'Reserve Vehicle';
+          button.addEventListener('click', () => {
+            this.reserveVehicle(vehicle.id);
+          });
+
+          popupContent.appendChild(button);
+
+          const marker = L.marker([vehicle.latitude, vehicle.longitude]).addTo(this.map)
+            .bindPopup(popupContent);
           }
         });
       },
       (error) => {
-        console.error(error.error.message);
+        console.error(error.error);
       }
     );
   }
@@ -86,7 +167,7 @@ export class MapComponent implements AfterViewInit {
   /* Removes all exisiting markers on the map */
   private clearMarkers(): void {
     this.map.eachLayer(layer => {
-      if (layer instanceof L.Marker) {
+      if(layer instanceof L.Marker) {
         this.map.removeLayer(layer);
       }
     });
@@ -97,5 +178,4 @@ export class MapComponent implements AfterViewInit {
     this.clearMarkers();
     this.addMarkers();
   }
-
 }

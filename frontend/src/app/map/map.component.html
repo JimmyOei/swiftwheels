@@ -1,1 +1,14 @@
 <div id="map"></div>
+<div class="reservation-container">
+  <div class="vehicle">
+    Your Vehicle: 
+    <ng-container *ngIf="vehicleReserved; else noneReserved">
+      {{ vehicleName }} (id: {{ vehicleId }})
+    </ng-container>
+    <ng-template #noneReserved>
+      None reserved
+    </ng-template>
+    |
+  </div>
+  <button id="release-button" (click)="releaseVehicle()">Release Vehicle</button>
+</div>

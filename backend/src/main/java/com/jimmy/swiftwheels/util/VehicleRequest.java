@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class reserveVehicleRequest {
-
-    private String username;
+public class VehicleRequest {
 
     private String token;
 

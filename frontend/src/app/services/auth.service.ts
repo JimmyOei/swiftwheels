@@ -18,7 +18,7 @@ export class AuthService {
   register(registerRequest: any) {
     return this.http.post(`${this.baseUrl}/auth/register`, registerRequest).pipe(
       map((data: any) => {
-        this.localStorage.store('username', data.usernmae);
+        this.localStorage.store('username', data.username);
         this.localStorage.store('role', data.role);
         this.localStorage.store('token', data.token);
 
@@ -30,7 +30,7 @@ export class AuthService {
   authenticate(authRequest: any) {
     return this.http.post(`${this.baseUrl}/auth/authenticate`, authRequest).pipe(
       map((data: any) => {
-        this.localStorage.store('username', data.usernmae);
+        this.localStorage.store('username', data.username);
         this.localStorage.store('role', data.role);
         this.localStorage.store('token', data.token);
 
