@@ -1,6 +1,29 @@
 import { Component, AfterViewInit } from '@angular/core';
+import { VehicleService } from '../services/vehicle.service';
+import { Vehicle } from '../interfaces/vehicle.interface';
+import { MapBoundaries } from '../interfaces/mapboundaries.interface';
 
 import * as L from 'leaflet';
+
+// This fixes a known bug in leafleet where the 
+// Leaflet's icon image location is been wrongly referenced during bundling
+import { icon, Marker } from 'leaflet';
+const iconRetinaUrl = 'assets/marker-icon-2x.png';
+const iconUrl = 'assets/marker-icon.png';
+const shadowUrl = 'assets/marker-shadow.png';
+const iconDefault = icon({
+  iconRetinaUrl,
+  iconUrl,
+  shadowUrl,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  tooltipAnchor: [16, -28],
+  shadowSize: [41, 41]
+});
+Marker.prototype.options.icon = iconDefault;
+
+
 
 
 @Component({
@@ -11,7 +34,7 @@ import * as L from 'leaflet';
 export class MapComponent implements AfterViewInit {
   private map!: L.Map;
 
-  constructor() {}
+  constructor(private vehicleService: VehicleService) {}
 
   /* Initiates the map and adds markers */
   ngAfterViewInit(): void {
@@ -21,34 +44,43 @@ export class MapComponent implements AfterViewInit {
 
   /* Initiates the map */
   private initMap(): void {
-    this.map = L.map('map', {
+        this.map = L.map('map', {
       center: [52.075184, 4.308190],    // Den Haag
       zoom: 13,
-      maxBounds: L.latLngBounds(
-        L.latLng(52.120474, 4.218868),  // Northwest boundary point
-        L.latLng(52.0176, 4.4594)       // Southeast boundary point
-      ),
       minZoom: 12
     });
+
+    this.vehicleService.getMapBounderies().subscribe(
+      (response) => {
+        this.map.setMaxBounds(L.latLngBounds(
+          L.latLng(response.max_latitude, response.min_longitude),      // Northwest boundary point
+          L.latLng(response.min_latitude, response.max_longitude)       // Southeast boundary point
+        ))
+      },
+      (error) => {
+        console.error(error.error.message);
+      }
+    );
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map);
   }
 
   /* Puts markers on the map for all available vehicles */
   private addMarkers(): void {
-    const vehicles = [
-      { id: 1, name: 'Vehicle 1', available: true, lat: 52.0803, lng: 4.3118 },
-      { id: 2, name: 'Vehicle 2', available: true, lat: 52.0735, lng: 4.3022 },
-      { id: 3, name: 'Vehicle 3', available: true, lat: 52.0535, lng: 4.3022 },
-      { id: 4, name: 'Vehicle 4', available: false, lat: 52.0635, lng: 4.3422 },
-    ]; // TEST DATA
-
-    vehicles.forEach(vehicle => {
-      if(vehicle.available == true) {
-        L.marker([vehicle.lat, vehicle.lng]).addTo(this.map)
-          .bindPopup(vehicle.name);
+    this.vehicleService.getAllAvailableVehicles().subscribe(
+      (response) => {
+        response.forEach(vehicle => {
+          if(vehicle.available == true) {
+            const popupContent = `<b>${vehicle.name}</b><br>Type: ${vehicle.type}<br>ID: ${vehicle.id}`;
+            L.marker([vehicle.latitude, vehicle.longitude]).addTo(this.map)
+              .bindPopup(popupContent);
+          }
+        });
+      },
+      (error) => {
+        console.error(error.error.message);
       }
-    });
+    );
   }
 
   /* Removes all exisiting markers on the map */

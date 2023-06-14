@@ -22,7 +22,7 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
     public ResponseEntity<AuthenticationResponse> register(RegisterRequest request) {
@@ -45,7 +45,7 @@ public class AuthenticationService {
                 .role(Role.ROLE_USER)
                 .build();
         var savedUser = userRepository.save(user);
-        var jwtToken = jwtUtil.generateToken(user);
+        var jwtToken = jwtService.generateToken(user);
         saveUserToken(savedUser, jwtToken);
 
         return ResponseEntity.ok(AuthenticationResponse.builder()
@@ -71,7 +71,7 @@ public class AuthenticationService {
         }
 
         // generate token
-        var jwtToken = jwtUtil.generateToken(user);
+        var jwtToken = jwtService.generateToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
 

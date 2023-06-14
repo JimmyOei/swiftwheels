@@ -1,21 +1,18 @@
-package com.jimmy.swiftwheels.util;
+package com.jimmy.swiftwheels.service;
 
-import com.jimmy.swiftwheels.user.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 @Service
-public
-class JwtUtil {
+public class JwtService {
 
     private static final String SECRET_KEY = "e0iAGwQ5tBTLcW/SR8J2lHd4K6EkNU1ngSbElXF+L9mM7GsB494d2M1xGzCyE13x";
 
@@ -44,13 +41,13 @@ class JwtUtil {
                 .compact();
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+    public boolean isTokenValid(String token, String username) {
+        final String tokenUsername = extractUsername(token);
+        return (tokenUsername.equals(username)) && isTokenNotExpired(token);
     }
 
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+    private boolean isTokenNotExpired(String token) {
+        return !extractExpiration(token).before(new Date());
     }
 
     private Date extractExpiration(String token) {

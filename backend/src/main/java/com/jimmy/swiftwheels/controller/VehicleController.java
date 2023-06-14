@@ -2,6 +2,7 @@ package com.jimmy.swiftwheels.controller;
 
 import com.jimmy.swiftwheels.service.VehicleService;
 import com.jimmy.swiftwheels.util.addVehicleRequest;
+import com.jimmy.swiftwheels.util.reserveVehicleRequest;
 import com.jimmy.swiftwheels.vehicle.Vehicle;
 import com.jimmy.swiftwheels.vehicle.VehicleLocationBounds;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,7 @@ public class VehicleController {
 
     private final VehicleService vehicleService;
 
+
     @GetMapping("/available")
     public ResponseEntity<List<Vehicle>> availableVehicles() {
         return vehicleService.getAllAvailableVehicles();
@@ -33,5 +35,11 @@ public class VehicleController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> addVehicle(@RequestBody addVehicleRequest request) {
         return vehicleService.addVehicle(request);
+    }
+
+    @PostMapping("/reserve")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<String> reserveVehicle(@RequestBody reserveVehicleRequest request) {
+        return vehicleService.reserveVehicle(request);
     }
 }

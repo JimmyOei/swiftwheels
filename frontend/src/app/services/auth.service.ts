@@ -16,7 +16,15 @@ export class AuthService {
   constructor(private http: HttpClient, private localStorage: LocalStorageService) { }
 
   register(registerRequest: any) {
-    return this.http.post(`${this.baseUrl}/auth/register`, registerRequest);
+    return this.http.post(`${this.baseUrl}/auth/register`, registerRequest).pipe(
+      map((data: any) => {
+        this.localStorage.store('username', data.usernmae);
+        this.localStorage.store('role', data.role);
+        this.localStorage.store('token', data.token);
+
+        return true;
+      })
+    );
   }
 
   authenticate(authRequest: any) {

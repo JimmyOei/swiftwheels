@@ -1,7 +1,7 @@
 package com.jimmy.swiftwheels.config;
 
 import com.jimmy.swiftwheels.token.TokenRepository;
-import com.jimmy.swiftwheels.util.JwtUtil;
+import com.jimmy.swiftwheels.service.JwtService;
 
 import java.io.IOException;
 
@@ -19,7 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final TokenRepository tokenRepository;
 
@@ -43,13 +43,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         jwt = authHeader.substring(7);
-        username = jwtUtil.extractUsername(jwt);
+        username = jwtService.extractUsername(jwt);
         if(username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
             var isTokenValid = tokenRepository.findByToken(jwt)
                     .map(t -> !t.isRevoked() && !t.isExpired())
                     .orElse(false);
-            if(jwtUtil.isTokenValid(jwt, userDetails) && isTokenValid) {
+            if(jwtService.isTokenValid(jwt, userDetails.getUsername()) && isTokenValid) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
