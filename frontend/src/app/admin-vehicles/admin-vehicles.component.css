@@ -1,0 +1,30 @@
+.admin-vehicles-page {
+    text-align: center;
+    padding: 60px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid black;
+}
+
+.actions button {
+    margin-right: 5px;
+}
+
+.add-vehicle {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid black;
+    display: inline-block;
+}
+
+.add-vehicle div {
+    margin-bottom: 10px;
+}

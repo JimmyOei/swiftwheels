@@ -1,1 +1,36 @@
-<p>admin-users works!</p>
+<div class="admin-users-page">
+    <button (click)="goToAdminPage()">Back to Admin</button>
+  
+    <h2>User Database</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Username</th>
+          <th>Role</th>
+          <th>Reserved Vehicle ID</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.id }}</td>
+          <td>{{ user.username }}</td>
+          <td>
+            <select [(ngModel)]="user.role">
+              <option value="ROLE_ADMIN" [selected]="user.role === 'ROLE_ADMIN'">Admin</option>
+              <option value="ROLE_USER" [selected]="user.role === 'ROLE_USER'">User</option>
+            </select>
+          </td>
+          <td>{{ user.reserved_vehicle_id }}</td>
+          <td>
+            <div class="actions">
+              <button (click)="editUser(user.id)">Edit</button>
+              <button (click)="deleteUser(user.id)">Delete</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+</div>
+  

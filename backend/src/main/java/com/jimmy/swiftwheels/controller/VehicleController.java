@@ -1,10 +1,9 @@
 package com.jimmy.swiftwheels.controller;
 
 import com.jimmy.swiftwheels.service.VehicleService;
-import com.jimmy.swiftwheels.util.MessageResponse;
-import com.jimmy.swiftwheels.util.addVehicleRequest;
-import com.jimmy.swiftwheels.util.VehicleRequest;
+import com.jimmy.swiftwheels.util.*;
 import com.jimmy.swiftwheels.vehicle.Vehicle;
+import com.jimmy.swiftwheels.vehicle.VehicleDTO;
 import com.jimmy.swiftwheels.vehicle.VehicleLocationBounds;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +14,11 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/vehicles")
+@RequestMapping("/api/vehicle")
 @AllArgsConstructor
 public class VehicleController {
 
     private final VehicleService vehicleService;
-
 
     @GetMapping("/available")
     public ResponseEntity<List<Vehicle>> availableVehicles() {
@@ -34,8 +32,20 @@ public class VehicleController {
 
     @PostMapping("/add")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MessageResponse> addVehicle(@RequestBody addVehicleRequest request) {
+    public ResponseEntity<MessageResponse> addVehicle(@RequestBody AddVehicleRequest request) {
         return vehicleService.addVehicle(request);
+    }
+
+    @PostMapping("/delete")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<MessageResponse> deleteVehicle(@RequestBody DeleteVehicleRequest request) {
+        return vehicleService.deleteVehicle(request);
+    }
+
+    @PostMapping("/edit")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<MessageResponse> editVehicle(@RequestBody EditVehicleRequest vehicle) {
+        return vehicleService.editVehicle(vehicle);
     }
 
     @PostMapping("/reserve")
@@ -48,5 +58,11 @@ public class VehicleController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<MessageResponse> releaseVehicle(@RequestBody VehicleRequest request) {
         return vehicleService.releaseVehicle(request);
+    }
+
+    @GetMapping("/database")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<VehicleDTO>> getDatabase() {
+        return vehicleService.getAllVehicles();
     }
 }

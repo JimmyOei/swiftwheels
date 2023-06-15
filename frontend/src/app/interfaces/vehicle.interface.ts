@@ -2,8 +2,8 @@ export interface Vehicle {
     id: number;
     name: string;
     type: string;
-    user: string;
+    userId: number;
     available: boolean;
     latitude: number;
     longitude: number;
-  }
+}

@@ -1,0 +1,21 @@
+.admin-users-page {
+    text-align: center;
+    padding: 60px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid black;
+}
+
+.actions button {
+    margin-right: 5px;
+}
+
+  

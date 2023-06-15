@@ -6,12 +6,14 @@ import { MapBoundaries } from '../interfaces/mapboundaries.interface';
 
 import { LocalStorageService } from 'ngx-webstorage';
 import { ReserveVehicleRequest } from '../interfaces/reservevehiclerequest.interface';
+import { EditVehicle } from '../interfaces/editvehicle.interface';
+import { AddVehicle } from '../interfaces/addVehicle.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class VehicleService {
-  private baseUrl = 'http://localhost:8080/api/vehicles';
+  private baseUrl = 'http://localhost:8080/api/vehicle';
 
   constructor(private http: HttpClient, private localStorage: LocalStorageService) { }
 
@@ -64,4 +66,62 @@ export class VehicleService {
 
     return this.http.post(`${this.baseUrl}/release`, request, { headers });
   }
+
+  getAllVehicles() {
+    const token = this.localStorage.retrieve('token');
+
+    if(!token) {
+      return null;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<Vehicle[]>(`${this.baseUrl}/database`, { headers });
+  }
+
+  editVehicle(editVehicle: EditVehicle) {
+    const token = this.localStorage.retrieve('token');
+
+    if(!token) {
+      return null;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.post(`${this.baseUrl}/edit`, editVehicle ,{ headers });
+  }
+
+  deleteVehicle(vehicle_id: number) {
+    const token = this.localStorage.retrieve('token');
+
+    if(!token) {
+      return null;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.post(`${this.baseUrl}/delete`, vehicle_id ,{ headers });
+  }
+
+  addVehicle(vehicle: AddVehicle) {
+    const token = this.localStorage.retrieve('token');
+
+    if(!token) {
+      return null;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.post(`${this.baseUrl}/add`, vehicle ,{ headers });
+  }
 }
+
+

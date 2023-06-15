@@ -4,6 +4,8 @@ import { map } from 'rxjs/operators';
 
 import { LocalStorageService } from 'ngx-webstorage';
 import { ReservedVehicleResponse } from '../interfaces/reservedvehicleresponse';
+import { User } from '../interfaces/user.interface';
+import { EditUser } from '../interfaces/edituser.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -41,5 +43,47 @@ export class UserService {
           return true;
         })
       );
+  }
+
+  getAllUsers() {
+    const token = this.localStorage.retrieve('token');
+
+    if(!token) {
+      return null;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<User[]>(`${this.baseUrl}/database`, { headers });
+  }
+
+  editUserRole(editUser: EditUser) {
+    const token = this.localStorage.retrieve('token');
+
+    if(!token) {
+      return null;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.post(`${this.baseUrl}/edit`, editUser ,{ headers });
+  }
+
+  deleteUser(user_id: number) {
+    const token = this.localStorage.retrieve('token');
+
+    if(!token) {
+      return null;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.post(`${this.baseUrl}/delete`, user_id ,{ headers });
   }
 }

@@ -20,7 +20,9 @@ import { AdminVehiclesComponent } from './admin-vehicles/admin-vehicles.componen
 const ROUTES: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
-  { path: 'admin', component: AdminComponent, canActivate: [AdminAuthGuard]},
+  { path: 'admin', component: AdminComponent, canActivate: [AdminAuthGuard] },
+  { path: 'admin/users', component: AdminUsersComponent, canActivate: [AdminAuthGuard] },
+  { path: 'admin/vehicles', component: AdminVehiclesComponent, canActivate: [AdminAuthGuard] },
   { path: 'register', component: RegisterComponent},
   { path: '**', redirectTo: '/login', pathMatch: 'full' }
 ];

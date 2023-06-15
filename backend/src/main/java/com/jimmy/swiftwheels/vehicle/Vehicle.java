@@ -1,10 +1,8 @@
 package com.jimmy.swiftwheels.vehicle;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jimmy.swiftwheels.user.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 

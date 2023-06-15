@@ -9,13 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class addVehicleRequest {
-
-    private String name;
-
-    private String type;
-
-    private double latitude;
-
-    private double longitude;
+public class EditUserRoleRequest {
+    private Integer user_id;
+    private String role;
 }

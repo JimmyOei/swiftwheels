@@ -1,1 +1,78 @@
-<p>admin-vehicles works!</p>
+<div class="admin-vehicles-page">
+    <button (click)="goToAdminPage()">Back to Admin</button>
+  
+    <h2>Vehicle Database</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Type</th>
+          <th>User</th>
+          <th>Available</th>
+          <th>Latitude</th>
+          <th>Longitude</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let vehicle of vehicles">
+          <td>{{ vehicle.id }}</td>
+          <td>
+            <input [(ngModel)]="vehicle.name" />
+          </td>
+          <td>
+            <select [(ngModel)]="vehicle.type">
+              <option value="CAR" [selected]="vehicle.type === 'CAR'">Car</option>
+              <option value="BIKE" [selected]="vehicle.type === 'BIKE'">Bike</option>
+              <option value="SCOOTER" [selected]="vehicle.type === 'SCOOTER'">Scooter</option>
+            </select>
+          </td>
+          <td>{{ vehicle.userId }}</td>
+          <td>
+            <input type="checkbox" [disabled]="true" [checked]="vehicle.available" />
+          </td>
+          <td>
+            <input type="number" [(ngModel)]="vehicle.latitude" />
+          </td>
+          <td>
+            <input type="number" [(ngModel)]="vehicle.longitude" />
+          </td>
+          <td>
+            <div class="actions">
+              <button (click)="editVehicle(vehicle.id)">Edit</button>
+              <button (click)="deleteVehicle(vehicle.id)">Delete</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <div class="add-vehicle">
+      <h3>Add Vehicle</h3>
+      <div>
+        <label>Name:</label>
+        <input [(ngModel)]="newVehicle.vehicle_name" />
+      </div>
+      <div>
+        <label>Type:</label>
+        <select [(ngModel)]="newVehicle.vehicle_type">
+          <option value="CAR">Car</option>
+          <option value="SCOOTER">Scooter</option>
+          <option value="BIKE">Bike</option>
+        </select>
+      </div>
+      <div>
+        <label>Latitude:</label>
+        <input [(ngModel)]="newVehicle.latitude" />
+      </div>
+      <div>
+        <label>Longitude:</label>
+        <input [(ngModel)]="newVehicle.longitude" />
+      </div>
+      <div>
+        <button (click)="addVehicle()">Add</button>
+      </div>
+    </div>
+  </div>
+  
