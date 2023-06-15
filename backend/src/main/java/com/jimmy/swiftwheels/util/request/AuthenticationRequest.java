@@ -1,4 +1,4 @@
-package com.jimmy.swiftwheels.util;
+package com.jimmy.swiftwheels.util.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EditUserRoleRequest {
-    private Integer user_id;
-    private String role;
+public class AuthenticationRequest {
+
+    private String username;
+
+    private String password;
 }

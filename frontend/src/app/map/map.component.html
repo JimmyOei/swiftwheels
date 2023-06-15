@@ -3,7 +3,7 @@
   <div class="vehicle">
     Your Vehicle: 
     <ng-container *ngIf="vehicleReserved; else noneReserved">
-      {{ vehicleName }} (id: {{ vehicleId }})
+      <strong>{{ vehicleName }} (id: {{ vehicleId }})</strong>
     </ng-container>
     <ng-template #noneReserved>
       None reserved

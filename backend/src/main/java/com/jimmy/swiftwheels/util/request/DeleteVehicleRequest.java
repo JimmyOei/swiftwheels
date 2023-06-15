@@ -1,4 +1,4 @@
-package com.jimmy.swiftwheels.util;
+package com.jimmy.swiftwheels.util.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

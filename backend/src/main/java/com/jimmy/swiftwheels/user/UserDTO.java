@@ -1,10 +1,7 @@
 package com.jimmy.swiftwheels.user;
 
-import com.jimmy.swiftwheels.vehicle.Vehicle;
-import com.jimmy.swiftwheels.vehicle.VehicleType;
 import lombok.Data;
 
-import javax.persistence.criteria.CriteriaBuilder;
 
 @Data
 public class UserDTO {

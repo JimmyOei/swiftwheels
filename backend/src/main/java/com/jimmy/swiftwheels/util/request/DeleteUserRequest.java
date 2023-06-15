@@ -1,4 +1,4 @@
-package com.jimmy.swiftwheels.util;
+package com.jimmy.swiftwheels.util.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LogoutRequest {
-
-    private String username;
+public class DeleteUserRequest {
+    private Integer user_id;
 }

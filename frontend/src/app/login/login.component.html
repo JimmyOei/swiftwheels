@@ -1,15 +1,15 @@
 <div class="login-container">
-    <div class="feedback-message">{{ message }}</div>
-    <form (submit)="login()">
-        <div>
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" [(ngModel)]="authRequest.username" required>
-        </div>
-        <div>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" [(ngModel)]="authRequest.password" required>
-        </div>
-        <button type="submit">Login</button>
-    </form>
-    <a class="nav-register" href="/register"><button>Register</button></a>
+    <div class="login-box">
+        <div class="feedback-message">{{ message }}</div>
+        <form (submit)="login()">
+            <div>
+                <input type="text" id="username" name="username" [(ngModel)]="authRequest.username" placeholder="Username" required>
+            </div>
+            <div>
+                <input type="password" id="password" name="password" [(ngModel)]="authRequest.password" placeholder="Password" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <a class="nav-register" href="/register">Register</a>
+    </div>
 </div>

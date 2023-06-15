@@ -1,5 +1,6 @@
-package com.jimmy.swiftwheels.util;
+package com.jimmy.swiftwheels.util.request;
 
+import com.jimmy.swiftwheels.user.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,9 +10,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationRequest {
+public class RegisterRequest {
 
     private String username;
 
     private String password;
 }
+

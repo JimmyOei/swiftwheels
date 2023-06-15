@@ -1,6 +1,5 @@
-package com.jimmy.swiftwheels.util;
+package com.jimmy.swiftwheels.util.request;
 
-import com.jimmy.swiftwheels.user.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,10 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequest {
-
-    private String username;
-
-    private String password;
+public class EditUserRoleRequest {
+    private Integer user_id;
+    private String role;
 }
-

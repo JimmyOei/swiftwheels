@@ -1,4 +1,4 @@
-package com.jimmy.swiftwheels.util;
+package com.jimmy.swiftwheels.util.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

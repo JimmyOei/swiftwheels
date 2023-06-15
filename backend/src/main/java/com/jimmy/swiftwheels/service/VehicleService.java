@@ -1,10 +1,18 @@
 package com.jimmy.swiftwheels.service;
 
+import com.jimmy.swiftwheels.logger.LoggerActionConstants;
+import com.jimmy.swiftwheels.logger.LoggerMessage;
 import com.jimmy.swiftwheels.user.User;
 import com.jimmy.swiftwheels.user.UserRepository;
-import com.jimmy.swiftwheels.util.*;
+import com.jimmy.swiftwheels.util.request.AddVehicleRequest;
+import com.jimmy.swiftwheels.util.request.DeleteVehicleRequest;
+import com.jimmy.swiftwheels.util.request.EditVehicleRequest;
+import com.jimmy.swiftwheels.util.request.VehicleRequest;
+import com.jimmy.swiftwheels.util.response.MessageResponse;
 import com.jimmy.swiftwheels.vehicle.*;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +24,9 @@ import java.util.stream.Collectors;
 public class VehicleService {
 
     private final VehicleRepository vehicleRepository;
-
     private final UserRepository userRepository;
-
     private final JwtService jwtService;
+    private static final Logger logger = LoggerFactory.getLogger(VehicleService.class);
 
     private boolean outOfBoundaries(double longitude, double latitude) {
         return (longitude > VehicleLocationBounds.MAX_LONGITUDE || longitude < VehicleLocationBounds.MIN_LONGITUDE
@@ -31,25 +38,26 @@ public class VehicleService {
     }
 
     public ResponseEntity<MessageResponse> addVehicle(AddVehicleRequest request) {
-        System.out.println("req: "+ request);
         if(outOfBoundaries(request.getLongitude(), request.getLatitude())) {
-            return ResponseEntity.badRequest().body(
-                    MessageResponse.builder().message(Message.OUT_OF_BOUNDS_LOCATION).build());
+            String message = LoggerMessage.getFailureMessage(LoggerActionConstants.ADD, "Location is out of boundaries");
+            logger.debug(message);
+            return ResponseEntity.badRequest().body(MessageResponse.builder().message(message).build());
         }
 
         if(request.getVehicle_name() == null || request.getVehicle_name().isEmpty()) {
-            return ResponseEntity.badRequest().body(
-                    MessageResponse.builder().message(
-                            Message.INVALID_VEHICLE_PROPERTIES).build());
+            String message = LoggerMessage.getFailureMessage(LoggerActionConstants.ADD, "Vehicle name is invalid");
+            logger.debug(message);
+            return ResponseEntity.badRequest().body(MessageResponse.builder().message(message).build());
         }
 
         VehicleType type;
         try {
             type = VehicleType.valueOf(request.getVehicle_type());
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(
-                    MessageResponse.builder().message(
-                            Message.INVALID_VEHICLE_PROPERTIES).build());
+            String message = LoggerMessage.getFailureMessage(LoggerActionConstants.ADD,
+                    String.format("Type '%s' is not a valid type", request.getVehicle_type()));
+            logger.debug(message);
+            return ResponseEntity.badRequest().body(MessageResponse.builder().message(message).build());
         }
 
         Vehicle vehicle = Vehicle.builder()
@@ -60,38 +68,46 @@ public class VehicleService {
                 .available(true)
                 .build();
         vehicleRepository.save(vehicle);
-        return ResponseEntity.ok(
-                MessageResponse.builder().message(
-                        Message.ADD_VEHICLE_SUCCESSFUL).build());
+        String message = LoggerMessage.getSuccessMessage(LoggerActionConstants.ADD) +
+                String.format(": id='%s', name='%s', type='%s', latitude='%s', longitude='%s', available='%s'",
+                        vehicle.getId(), vehicle.getName(), vehicle.getType().toString(), vehicle.getLatitude(),
+                        vehicle.getLongitude(), vehicle.isAvailable());
+        logger.info(message);
+        return ResponseEntity.ok(MessageResponse.builder().message(message).build());
     }
 
     public ResponseEntity<MessageResponse> reserveVehicle(VehicleRequest request) {
         if(request.getToken() == null) {
-            return ResponseEntity.badRequest().body(
-                    MessageResponse.builder().message(Message.UNAUTHORIZED).build());
+            String message = LoggerMessage.getFailureMessage(LoggerActionConstants.RESERVATION, "Token is empty");
+            logger.debug(message);
+            return ResponseEntity.badRequest().body(MessageResponse.builder().message(message).build());
         }
 
-        // check if vehicle is reserved
         if(request.getVehicle_id() == null) {
-            return ResponseEntity.badRequest().body(
-                    MessageResponse.builder().message(Message.INVALID_VEHICLE_PROPERTIES).build());
+            String message = LoggerMessage.getFailureMessage(LoggerActionConstants.RESERVATION, "Vehicle id is empty");
+            logger.debug(message);
+            return ResponseEntity.badRequest().body(MessageResponse.builder().message(message).build());
         }
         Vehicle vehicle = vehicleRepository.getReferenceById(request.getVehicle_id());
         if(!vehicle.isAvailable()) {
-            return ResponseEntity.badRequest().body(
-                    MessageResponse.builder().message(Message.VEHICLE_UNAVAILABLE).build());
+            String message = LoggerMessage.getFailureMessage(LoggerActionConstants.RESERVATION,
+                    String.format("Vehicle id '%s' is already reserved", request.getVehicle_id()));
+            logger.debug(message);
+            return ResponseEntity.badRequest().body(MessageResponse.builder().message(message).build());
         }
 
-        // check if user is reserving a vehicle
         String username = jwtService.extractUsername(request.getToken());
         User user = userRepository.findByUsername(username).orElse(null);
         if(user == null) {
-            return ResponseEntity.badRequest().body(
-                    MessageResponse.builder().message(Message.INVALID_CREDENTIALS).build());
+            String message = LoggerMessage.getFailureMessage(LoggerActionConstants.RESERVATION, "Cannot find user");
+            logger.debug(message);
+            return ResponseEntity.badRequest().body(MessageResponse.builder().message(message).build());
         }
         if(user.getVehicle() != null) {
-            return ResponseEntity.badRequest().body(
-                    MessageResponse.builder().message(Message.USER_ALREADY_HAS_VEHICLE).build());
+            String message = LoggerMessage.getFailureMessage(LoggerActionConstants.RESERVATION,
+                    String.format("User '%s' is already reserving vehicle id '%s'", username, request.getVehicle_id()));
+            logger.debug(message);
+            return ResponseEntity.badRequest().body(MessageResponse.builder().message(message).build());
         }
 
         vehicle.setAvailable(false);
@@ -100,37 +116,44 @@ public class VehicleService {
         user.setVehicle(vehicle);
         userRepository.save(user);
 
-        return ResponseEntity.ok(
-                MessageResponse.builder().message(Message.VEHICLE_RESERVE_SUCCESSFUL).build());
+        String message = LoggerMessage.getSuccessMessage(LoggerActionConstants.RESERVATION)
+                + String.format(": User '%s' reserved vehicle id '%s'", username, request.getVehicle_id());
+        logger.info(message);
+        return ResponseEntity.ok(MessageResponse.builder().message(message).build());
     }
 
     public ResponseEntity<MessageResponse> releaseVehicle(VehicleRequest request) {
         if(request.getToken() == null) {
-            return ResponseEntity.badRequest().body(
-                    MessageResponse.builder().message(Message.UNAUTHORIZED).build());
+            String message = LoggerMessage.getFailureMessage(LoggerActionConstants.RELEASE, "Token is empty");
+            logger.debug(message);
+            return ResponseEntity.badRequest().body(MessageResponse.builder().message(message).build());
         }
 
-        // check if vehicle is reserved
         if(request.getVehicle_id() == null) {
-            return ResponseEntity.badRequest().body(
-                    MessageResponse.builder().message(Message.INVALID_VEHICLE_PROPERTIES).build());
+            String message = LoggerMessage.getFailureMessage(LoggerActionConstants.RELEASE, "Vehicle id is empty");
+            logger.debug(message);
+            return ResponseEntity.badRequest().body(MessageResponse.builder().message(message).build());
         }
         Vehicle vehicle = vehicleRepository.getReferenceById(request.getVehicle_id());
         if(vehicle.isAvailable()) {
-            return ResponseEntity.badRequest().body(
-                    MessageResponse.builder().message(Message.NOT_YOUR_VEHICLE).build());
+            String message = LoggerMessage.getFailureMessage(LoggerActionConstants.RELEASE,
+                    String.format("Vehicle id '%s' is not reserved", request.getVehicle_id()));
+            logger.debug(message);
+            return ResponseEntity.badRequest().body(MessageResponse.builder().message(message).build());
         }
 
-        // check if user is reserving a vehicle
         String username = jwtService.extractUsername(request.getToken());
         User user = userRepository.findByUsername(username).orElse(null);
         if(user == null) {
-            return ResponseEntity.badRequest().body(
-                    MessageResponse.builder().message(Message.INVALID_CREDENTIALS).build());
+            String message = LoggerMessage.getFailureMessage(LoggerActionConstants.RELEASE, "Cannot find user");
+            logger.debug(message);
+            return ResponseEntity.badRequest().body(MessageResponse.builder().message(message).build());
         }
         if(user.getVehicle() != vehicle) {
-            return ResponseEntity.badRequest().body(
-                    MessageResponse.builder().message(Message.NOT_YOUR_VEHICLE).build());
+            String message = LoggerMessage.getFailureMessage(LoggerActionConstants.RELEASE,
+                    String.format("User '%s' is not reserving vehicle id '%s'", username, request.getVehicle_id()));
+            logger.debug(message);
+            return ResponseEntity.badRequest().body(MessageResponse.builder().message(message).build());
         }
 
         vehicle.setAvailable(true);
@@ -139,8 +162,10 @@ public class VehicleService {
         user.setVehicle(null);
         userRepository.save(user);
 
-        return ResponseEntity.ok(
-                MessageResponse.builder().message(Message.VEHICLE_RELEASE_SUCCESSFUL).build());
+        String message = LoggerMessage.getSuccessMessage(LoggerActionConstants.RELEASE)
+                + String.format(": User '%s' released vehicle id '%s'", username, request.getVehicle_id());
+        logger.info(message);
+        return ResponseEntity.ok(MessageResponse.builder().message(message).build());
     }
 
     public ResponseEntity<List<VehicleDTO>> getAllVehicles() {
@@ -151,26 +176,41 @@ public class VehicleService {
 
     public ResponseEntity<MessageResponse> deleteVehicle(DeleteVehicleRequest request) {
         if(!vehicleRepository.existsById(request.getVehicle_id())) {
-            return ResponseEntity.badRequest().body(MessageResponse.builder().message(Message.VEHICLE_NOT_EXISTS).build());
+            String message = LoggerMessage.getFailureMessage(LoggerActionConstants.DELETE,
+                    String.format("Vehicle id '%s' does not exist", request.getVehicle_id()));
+            logger.debug(message);
+            return ResponseEntity.badRequest().body(MessageResponse.builder().message(message).build());
         }
 
         Vehicle vehicle = vehicleRepository.getReferenceById(request.getVehicle_id());
         User user = vehicle.getUser();
         if(user != null) {
-            user.setVehicle(null);
-            userRepository.save(user);
+            String message = LoggerMessage.getFailureMessage(LoggerActionConstants.DELETE,
+                    String.format("Vehicle id '%s' is being reserved", request.getVehicle_id()));
+            logger.debug(message);
+            return ResponseEntity.badRequest().body(MessageResponse.builder().message(message).build());
         }
 
         vehicleRepository.delete(vehicle);
-        return ResponseEntity.ok(MessageResponse.builder().message(Message.DELETE_SUCCESSFUL).build());
+
+        String message = LoggerMessage.getSuccessMessage(LoggerActionConstants.DELETE)
+                + String.format(": id='%s', name='%s', type='%s', latitude='%s', longitude='%s'",
+                vehicle.getId(), vehicle.getName(), vehicle.getType().toString(), vehicle.getLatitude(), vehicle.getLongitude());
+        logger.info(message);
+        return ResponseEntity.ok(MessageResponse.builder().message(message).build());
     }
 
     public ResponseEntity<MessageResponse> editVehicle(EditVehicleRequest vehicle) {
         if(!vehicleRepository.existsById(vehicle.getVehicle_id())) {
-            return ResponseEntity.badRequest().body(MessageResponse.builder().message(Message.VEHICLE_NOT_EXISTS).build());
+            String message = LoggerMessage.getFailureMessage(LoggerActionConstants.EDIT,
+                    String.format("Vehicle id '%s' does not exist", vehicle.getVehicle_id()));
+            logger.debug(message);
+            return ResponseEntity.badRequest().body(MessageResponse.builder().message(message).build());
         }
         if(outOfBoundaries(vehicle.getLongitude(), vehicle.getLatitude())) {
-            return ResponseEntity.badRequest().body(MessageResponse.builder().message(Message.OUT_OF_BOUNDS_LOCATION).build());
+            String message = LoggerMessage.getFailureMessage(LoggerActionConstants.EDIT, "Location is out of boundaries");
+            logger.debug(message);
+            return ResponseEntity.badRequest().body(MessageResponse.builder().message(message).build());
         }
 
         Vehicle origin_vehicle = vehicleRepository.getReferenceById(vehicle.getVehicle_id());
@@ -180,6 +220,12 @@ public class VehicleService {
         origin_vehicle.setLongitude(vehicle.getLongitude());
 
         vehicleRepository.save(origin_vehicle);
-        return ResponseEntity.ok(MessageResponse.builder().message(Message.EDIT_SUCCESSFUL).build());
+
+        String message = LoggerMessage.getSuccessMessage(LoggerActionConstants.EDIT)
+                + String.format(": id='%s', name='%s', type='%s', latitude='%s', longitude='%s'",
+                origin_vehicle.getId(), origin_vehicle.getName(), origin_vehicle.getType().toString(),
+                origin_vehicle.getLatitude(), origin_vehicle.getLongitude());
+        logger.info(message);
+        return ResponseEntity.ok(MessageResponse.builder().message(message).build());
     }
 }

@@ -1,6 +1,5 @@
 package com.jimmy.swiftwheels.vehicle;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jimmy.swiftwheels.user.User;
 import lombok.*;
 

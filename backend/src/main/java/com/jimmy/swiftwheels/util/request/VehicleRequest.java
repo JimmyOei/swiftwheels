@@ -1,4 +1,4 @@
-package com.jimmy.swiftwheels.util;
+package com.jimmy.swiftwheels.util.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DeleteUserRequest {
-    private Integer user_id;
+public class VehicleRequest {
+
+    private String token;
+
+    private Integer vehicle_id;
 }
