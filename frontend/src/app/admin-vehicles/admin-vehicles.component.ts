@@ -14,6 +14,7 @@ import { finalize } from 'rxjs/operators';
 })
 export class AdminVehiclesComponent {
   vehicles: Vehicle[] = []; // Replace Vehicle with your vehicle model/interface
+  message: string = '';
 
   newVehicle: AddVehicle = {
     vehicle_name: '',
@@ -54,7 +55,8 @@ export class AdminVehiclesComponent {
         console.log(response.message);
       },
       (error) => {
-        console.error(error.error);
+        this.message = error.error.message;
+        console.error(error.error.message);
       }
     );
   }
@@ -67,7 +69,8 @@ export class AdminVehiclesComponent {
         this.updateVehiclesList();
       },
       (error) => {
-        console.error(error.error);
+        this.message = error.error.message;
+        console.error(error.error.message);
       }
     );
   }
@@ -79,12 +82,14 @@ export class AdminVehiclesComponent {
         this.updateVehiclesList();
       },
       (error) => {
-        console.error(error.error);
+        this.message = error.error.message;
+        console.error(error.error.message);
       }
     );
   }
 
   updateVehiclesList() {
+    this.message = '';
     const getResponse = this.vehicleService.getAllVehicles();
     if(!getResponse) {
       console.log("Failed fetching vehicle database, because local token is missing.");
@@ -96,7 +101,8 @@ export class AdminVehiclesComponent {
         this.vehicles = response;
       },
       (error) => {
-        console.error(error.error);
+        this.message = error.error.message;
+        console.error(error.error.message);
       }
     );
   }

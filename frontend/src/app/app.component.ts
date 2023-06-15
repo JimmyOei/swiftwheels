@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { LocalStorageService } from 'ngx-webstorage';
 
 import { AuthService } from './services/auth.service';
 import { UserService } from './services/user.service';
@@ -13,10 +14,14 @@ export class AppComponent {
   title = 'Swift Wheels'
   isMenuOpen = false;
 
-  constructor(private router: Router, private authService: AuthService) {}
+  constructor(private router: Router, private authService: AuthService, private localStorage: LocalStorageService) {}
 
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  isLoggedIn(): boolean {
+    return this.localStorage.retrieve('username') != null;
   }
 
   logout() {

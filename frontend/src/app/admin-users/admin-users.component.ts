@@ -13,6 +13,7 @@ import { finalize } from 'rxjs/operators';
 })
 export class AdminUsersComponent {
   users: User[] = [];
+  message: string = '';
 
   constructor(private userService: UserService, private router: Router) {
     this.updateUsersList();
@@ -23,6 +24,7 @@ export class AdminUsersComponent {
   }
 
   updateUsersList() {
+    this.message = '';
     const getResponse = this.userService.getAllUsers();
     if(!getResponse) {
       console.log("Failed fetching user database, because local token is missing.");
@@ -34,7 +36,8 @@ export class AdminUsersComponent {
         this.users = response;
       },
       (error) => {
-        console.error(error.error);
+        this.message = error.error.message;
+        console.error(error.error.message);
       }
     );
   }
@@ -60,7 +63,8 @@ export class AdminUsersComponent {
         console.log(response.message);
       },
       (error) => {
-        console.error(error.error);
+        this.message = error.error.message;
+        console.error(error.error.message);
       }
     );
   }
@@ -73,7 +77,8 @@ export class AdminUsersComponent {
         this.updateUsersList();
       },
       (error) => {
-        console.error(error.error);
+        this.message = error.error.message;
+        console.error(error.error.message);
       }
     );
   }

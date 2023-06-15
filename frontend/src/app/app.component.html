@@ -11,7 +11,7 @@
     <div class="spacer"></div>
 
     <!-- Menu Circle -->
-    <button class="menu-button" (click)="toggleMenu()"></button>
+    <button *ngIf="isLoggedIn()" class="menu-button" (click)="toggleMenu()"></button>
 
     <!-- Dropdown Menu -->
     <div class="dropdown-menu" [class.show]="isMenuOpen">
