@@ -26,13 +26,14 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.cors();
         httpSecurity
                 .csrf().disable()
+                .cors()
+                .and()
                 .authorizeHttpRequests()
                 .antMatchers("/api/auth/*").permitAll()
-                .antMatchers("/api/vehicles/available").permitAll()
-                .antMatchers("/api/vehicles/bounds").permitAll()
+                .antMatchers("/api/vehicle/available").permitAll()
+                .antMatchers("/api/vehicle/bounds").permitAll()
                 .antMatchers(HttpHeaders.ALLOW).permitAll()
                 .anyRequest().authenticated()
                 .and()
